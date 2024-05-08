@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.15.1/css/ol.css"
+    type="text/css">
+  <style>
+    .map {
+      height: 700px;
+      width: 100%;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.15.1/build/ol.js"></script>
+  <title>OpenLayers example</title>
+</head>
+
+<body>
+  <h2>My Map</h2>
+  <div id="map" class="map"></div>
+  <input type="button" onclick="handleLeftMove()" value="左移">
+  <input type="button" onclick="handleLargeZoom()" value="放大">
+  <input type="button" value="去上海" onclick="handleToCity()">
+  <input type="button" value="去朝阳" onclick="handleToChaoyang()">
+  <script type="text/javascript">
+    const minWgs = [115, 39];
+    const mercatorCoordinates = ol.proj.transform(minWgs, 'EPSG:4326', 'EPSG:3857');
+    const maxWgs = [119, 41];
+    const mercatorCoordinates1 = ol.proj.transform(maxWgs, 'EPSG:4326', 'EPSG:3857');
+
+    var map = new ol.Map({
+      target: 'map',
+      layers: [
+        new ol.layer.Tile({
+          source: new ol.source.XYZ({
+            url: 'http://wprd0{1-4}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&style=7&x={x}&y={y}&z={z}'
+          })
+        })
+      ],
+      view: new ol.View({
+        extent: [mercatorCoordinates[0], mercatorCoordinates[1], mercatorCoordinates1[0], mercatorCoordinates1[1]],
+        // extent: [115, 39, 119, 41],
+        center: ol.proj.fromLonLat([117.41, 39.54]),
+        // projection: 'EPSG:4326',
+        zoom: 9,
+        maxZoom: 14,
+        minZoom: 8
+      })
+    });
+
+    function handleLeftMove() {
+      const view = map.getView();
+      const center = view.getCenter();
+      center[0] += 50000;
+      view.setCenter(center);
+      map.render();
+    }
+
+    function handleLargeZoom() {
+      const view = map.getView();
+      // view.setZoom(view.getZoom() + 1);
+      view.animate({ zoom: 12 }, { center: ol.proj.fromLonLat([117.41, 39.54]) });
+      map.render();
+    }
+
+    function handleToCity() {
+      const view = map.getView();
+      const point = ol.proj.fromLonLat([122.52, 31.40]);
+      view.setCenter(point);
+      map.render();
+    }
+
+    function handleToChaoyang() {
+      const view = map.getView();
+      const m1 = ol.proj.transform([116.25, 39.49], 'EPSG:4326', 'EPSG:3857');
+      const m2 = ol.proj.transform([116.28, 39.55], 'EPSG:4326', 'EPSG:3857');
+      view.fit([m1[0], m1[1], m2[0], m2[1]], map.getSize());
+    }
+  </script>
+</body>
+
+</html>
