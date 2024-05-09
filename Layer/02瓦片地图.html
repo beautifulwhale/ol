@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.15.1/css/ol.css"
+    type="text/css">
+  <style>
+    .map {
+      height: 100vh;
+      width: 100%;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.15.1/build/ol.js"></script>
+  <title>OpenLayers example</title>
+</head>
+
+<body>
+  <div id="map" class="map"></div>
+  <script type="text/javascript">
+    // 创建地图容器
+    var baiduMapLayer = new ol.layer.Tile({
+      source: new ol.source.XYZ({
+        tilePixelRatio: 2,
+        tileUrlFunction: function (tileCoord) {  // 参数tileCoord为瓦片坐标
+          var z = tileCoord[0];
+          var x = tileCoord[1];
+          var y = tileCoord[2];
+
+          // 计算当前层级下瓦片总数的一半，用于定位整个地图的中心点
+          var halfTileNum = Math.pow(2, z - 1);
+          // 原点移到中心点后，计算xy方向上新的坐标位置
+          var baiduX = x - halfTileNum;
+          var baiduY = y + halfTileNum;
+
+          // 百度瓦片服务url将负数使用M前缀来标识
+          if (baiduX < 0) {
+            baiduX = 'M' + (-baiduX);
+          }
+          if (baiduY < 0) {
+            baiduY = 'M' + (-baiduY);
+          }
+
+          // 返回经过转换后，对应于百度在线瓦片的url
+          return 'http://online2.map.bdimg.com/onlinelabel/?qt=tile&x=' + baiduX + '&y=' + baiduY + '&z=' + z + '&styles=pl&udt=20160321&scaler=2&p=0';
+        }
+      })
+    });
+
+    const googleLayer = new ol.layer.Tile({
+      source: new ol.source.XYZ({
+        url: 'http://www.google.cn/maps/vt/pb=!1m4!1m3!1i{z}!2i{x}!3i{y}!2m3!1e0!2sm!3i345013117!3m8!2szh-CN!3scn!5e1105!12m4!1e68!2m2!1sset!2sRoadmap!4e0'
+      })
+    });
+
+    var map = new ol.Map({
+      target: 'map',
+      layers: [
+        // baiduMapLayer
+        googleLayer
+      ],
+      // 设置地图视图
+      view: new ol.View({
+        center: ol.proj.fromLonLat([116.404, 39.915]), // 北京天安门坐标
+        zoom: 10 // 初始缩放级别
+      })
+    });
+  </script>
+</body>
+
+</html>
