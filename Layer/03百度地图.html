@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenLayers with Baidu Maps</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.15.1/css/ol.css"
+    type="text/css">
+  <style>
+    #map {
+      width: 100%;
+      height: 100vh;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="map"></div>
+  <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.15.1/build/ol.js"></script>
+  <script>
+    // 创建百度地图瓦片源
+    var baiduSource = new ol.source.XYZ({
+      url: 'http://online{0-3}.map.bdimg.com/onlinelabel/?qt=tile&x={x}&y={y}&z={z}&styles=pl&scaler=1&p=1',
+      tileGrid: new ol.tilegrid.TileGrid({
+        resolutions: (function () {
+          var res = [];
+          for (var i = 0; i <= 19; i++) {
+            res[i] = Math.pow(2, 18 - i);
+          }
+          return res;
+        })(),
+        origin: [0, 0],
+        extent: [0, 0, 20037508.34, 20037508.34],
+        tileSize: [256, 256]
+      }),
+      tileUrlFunction: function (tileCoord) {
+        var z = tileCoord[0];
+        var x = tileCoord[1];
+        var y = Math.pow(2, z) - tileCoord[2] - 1;
+        var subdomains = '0123';
+        var idx = (x + y) % subdomains.length;
+        var s = subdomains[idx];
+        return this.url
+          .replace('{z}', z)
+          .replace('{x}', x)
+          .replace('{y}', y)
+          .replace('{0-3}', s);
+      }
+    });
+
+    // 创建百度地图图层
+    var baiduLayer = new ol.layer.Tile({
+      source: baiduSource
+    });
+
+    // 创建OpenLayers地图
+    var map = new ol.Map({
+      target: 'map',
+      layers: [baiduLayer],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([117.41, 39.54], 'EPSG:3857'),
+        zoom: 10,
+        projection: 'EPSG:3857'
+      })
+    });
+  </script>
+</body>
+
+</html>

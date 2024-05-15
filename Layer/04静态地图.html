@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.15.1/css/ol.css"
+    type="text/css">
+  <style>
+    .map {
+      height: 50vh;
+      width: 100%;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.15.1/build/ol.js"></script>
+  <title>OpenLayers example</title>
+</head>
+
+<body>
+  <div id="map" class="map"></div>
+  <script type="text/javascript">
+    const extent = [0, 0, 848, 600]
+    const projection = new ol.proj.Projection({
+      code: 'xkcd-image', // 自定义投影代码
+      units: 'pixels', // 单位为像素
+      extent: extent
+    });
+
+    // 创建静态图像源
+    const imageSource = new ol.source.ImageStatic({
+      url: './image.png',
+      projection: projection,
+      imageExtent: extent
+    })
+
+    // 创建图像图层
+    const imageLayer = new ol.layer.Image({
+      source: imageSource,
+    })
+
+    const map = new ol.Map({
+      target: 'map',
+      layers: [imageLayer],
+      // 设置地图视图
+      view: new ol.View({
+        center: ol.extent.getCenter(extent),
+        zoom: 18
+      })
+    });
+
+    // 创建旗子图标样式
+    const flagStyle = new ol.style.Style({
+      image: new ol.style.Icon({
+        anchor: [0.5, 1],
+        src: './flag.png'
+      })
+    })
+
+    // 创建旗子的矢量要素
+    const flagFeature = new ol.Feature({
+      geometry: new ol.geom.Point([512, 200])
+    })
+    flagFeature.setStyle(flagStyle);
+
+    // 创建矢量图层并添加到地图中
+    const vectorSource = new ol.source.Vector({
+      features: [flagFeature]
+    })
+    const VectorLayer = new ol.layer.Vector({
+      source: vectorSource
+    })
+    map.addLayer(VectorLayer);
+  </script>
+</body>
+
+</html>
