@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.15.1/css/ol.css"
+    type="text/css">
+  <style>
+    .map {
+      height: 50vh;
+      width: 100%;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.15.1/build/ol.js"></script>
+  <title>OpenLayers example</title>
+</head>
+
+<body>
+  <div id="map" class="map"></div>
+  <script>
+    // 创建地图实例
+    const map = new ol.Map({
+      target: 'map',
+      layers: [
+        new ol.layer.Tile({
+          source: new ol.source.OSM()
+        })
+      ],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([0, 0]),
+        zoom: 2
+      })
+    });
+
+    const geojsonArr = [
+      {
+        'type': 'FeatureCollection',
+        'features': [
+          {
+            'type': 'Feature',
+            'geometry': {
+              'type': 'Point',
+              'coordinates': [0, 0]
+            },
+            'properties': {
+              'name': 'Null Island'
+            }
+          },
+          {
+            'type': 'Feature',
+            'geometry': {
+              'type': 'Point',
+              'coordinates': [20, 20]
+            },
+            'properties': {
+              'name': 'Null Island'
+            }
+          }
+        ]
+      },
+      {
+        'type': 'FeatureCollection',
+        'features': [
+          {
+            'type': 'Feature',
+            'geometry': {
+              'type': 'Point',
+              'coordinates': [40, 40]
+            },
+            'properties': {
+              'name': 'Null Island'
+            }
+          }
+        ]
+      },
+    ]
+
+    function setVectorLayer() {
+      for (let i = 0; i < geojsonArr.length; i++) {
+        // 创建矢量源
+        const vectorSource = new ol.source.Vector({
+          features: new ol.format.GeoJSON().readFeatures(geojsonArr[i], {
+            featureProjection: 'EPSG:3857'
+          })
+        });
+        
+        // 样式
+        const iconSrc = i === 0 ? 'https://openlayers.org/en/v6.14.1/examples/data/icon.png' : 'https://openlayers.org/en/v6.14.1/examples/data/dot.png'
+        const iconStyle = new ol.style.Style({
+          image: new ol.style.Icon({
+            anchor: [0.5, 1],
+            src: iconSrc
+          })
+        });
+
+        // 矢量图层
+        const vectorLayer = new ol.layer.Vector({
+          source: vectorSource,
+          style: iconStyle
+        })
+
+        map.addLayer(vectorLayer);
+      }
+    }
+
+    setVectorLayer();
+  </script>
+</body>
+
+</html>
