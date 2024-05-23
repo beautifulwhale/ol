@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.15.1/css/ol.css"
+    type="text/css">
+  <style>
+    .map {
+      height: 50vh;
+      width: 100%;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.15.1/build/ol.js"></script>
+  <title>OpenLayers example</title>
+</head>
+
+<body>
+  <div id="map" class="map"></div>
+  图层顺序：
+  <input name="seq" type="radio" value="" onclick="upOsm(this);" />底图最上
+  <input name="seq" type="radio" value="" checked="checked" onclick="upOhters(this);" />其他最上
+  <script>
+    // 创建地图实例
+    const osmLayer = new ol.layer.Tile({
+      source: new ol.source.OSM(),
+      zIndex: 0
+    })
+
+    const map = new ol.Map({
+      target: 'map',
+      layers: [
+        osmLayer
+      ],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([0, 0]),
+        zoom: 2
+      })
+    });
+
+    const geojsonArr = [
+      {
+        'type': 'FeatureCollection',
+        'features': [
+          {
+            'type': 'Feature',
+            'geometry': {
+              'type': 'Point',
+              'coordinates': [0, 0]
+            },
+            'properties': {
+              'name': 'Null Island'
+            }
+          },
+          {
+            'type': 'Feature',
+            'geometry': {
+              'type': 'Point',
+              'coordinates': [20, 20]
+            },
+            'properties': {
+              'name': 'Null Island'
+            }
+          }
+        ]
+      },
+      {
+        'type': 'FeatureCollection',
+        'features': [
+          {
+            'type': 'Feature',
+            'geometry': {
+              'type': 'Point',
+              'coordinates': [40, 40]
+            },
+            'properties': {
+              'name': 'Null Island'
+            }
+          }
+        ]
+      },
+    ]
+
+    const layerArr = [];
+
+    function setVectorLayer() {
+      for (let i = 0; i < geojsonArr.length; i++) {
+        // 创建矢量源
+        const vectorSource = new ol.source.Vector({
+          features: new ol.format.GeoJSON().readFeatures(geojsonArr[i], {
+            featureProjection: 'EPSG:3857'
+          })
+        });
+
+        // 样式
+        const iconSrc = i === 0 ? 'https://openlayers.org/en/v6.14.1/examples/data/icon.png' : 'https://openlayers.org/en/v6.14.1/examples/data/dot.png'
+        const iconStyle = new ol.style.Style({
+          image: new ol.style.Icon({
+            anchor: [0.5, 1],
+            src: iconSrc
+          })
+        });
+
+        // 矢量图层
+        const vectorLayer = new ol.layer.Vector({
+          source: vectorSource,
+          style: iconStyle,
+          zIndex: 1
+        })
+
+        layerArr.push(vectorLayer);
+
+        map.addLayer(vectorLayer);
+      }
+    }
+
+    setVectorLayer();
+
+
+    function upOsm(e) {
+      if (e.checked) {
+        osmLayer.setZIndex(3);
+        layerArr.forEach(l => l.setZIndex(l.getZIndex() - 1));
+      }
+    }
+
+    function upOhters(e) {
+      if (e.checked) {
+        osmLayer.setZIndex(osmLayer.getZIndex() - 1);
+        layerArr.forEach(l => l.setZIndex(3));
+      }
+    }
+  </script>
+</body>
+
+</html>
