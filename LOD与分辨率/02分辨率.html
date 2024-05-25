@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.15.1/css/ol.css"
+    type="text/css">
+  <style>
+    .map {
+      height: 80vh;
+      width: 100%;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.15.1/build/ol.js"></script>
+  <title>OpenLayers example</title>
+</head>
+
+<body>
+  <div class="resolution"></div>
+  <div id="map" class="map"></div>
+  <script type="text/javascript">
+    var osmSource = new ol.source.OSM();
+
+    var map = new ol.Map({
+      target: 'map',
+      layers: [
+        new ol.layer.Tile({
+          source: osmSource
+        })
+      ],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([117.41, 39.54]),
+        zoom: 9
+      })
+    });
+
+    var view = map.getView();
+    view.on('change:resolution', function () {
+      document.querySelector('.resolution').innerHTML = view.getResolution();
+    });
+
+    document.querySelector('.resolution').innerHTML = view.getResolution();
+
+  </script>
+</body>
+
+</html>
