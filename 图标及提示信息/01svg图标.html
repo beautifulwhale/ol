@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.15.1/css/ol.css"
+    type="text/css">
+  <style>
+    .map {
+      height: 80vh;
+      width: 100%;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.15.1/build/ol.js"></script>
+  <title>OpenLayers example</title>
+</head>
+
+<body>
+  <div id="map" class="map"></div>
+  <script type="text/javascript">
+    var osmSource = new ol.source.OSM();
+
+    var map = new ol.Map({
+      target: 'map',
+      layers: [
+        new ol.layer.Tile({
+          source: osmSource
+        })
+      ],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([117.41, 39.54]),
+        zoom: 9
+      })
+    });
+
+    var layer = new ol.layer.Vector({
+      source: new ol.source.Vector()
+    })
+
+    var style = new ol.style.Style({
+      image: new ol.style.Icon({
+        src: './happy.svg',
+        anchor: [0.5, 1],
+        scale: 0.1
+      })
+    })
+
+    var Feature = new ol.Feature({
+      geometry: new ol.geom.Point(ol.proj.fromLonLat([117.41, 39.54]))
+    })
+
+    Feature.setStyle(style);
+    layer.getSource().addFeature(Feature);
+    map.addLayer(layer);
+
+    var view = map.getView();
+    // 监视分辨率
+    view.on('change:resolution', function () {
+      var zoom = this.getZoom();
+      var style = Feature.getStyle();
+      style.getImage().setScale(zoom / 50);
+      Feature.setStyle(style);
+    })
+  </script>
+</body>
+
+</html>

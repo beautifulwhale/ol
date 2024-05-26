@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.15.1/css/ol.css"
+    type="text/css">
+  <style>
+    .map {
+      height: 100vh;
+      width: 100%;
+    }
+
+    #tips {
+      width: 100px;
+      height: 100px;
+      background-color: azure;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.15.1/build/ol.js"></script>
+  <title>OpenLayers example</title>
+</head>
+
+<body>
+  <h2>My Map</h2>
+  <div id="map" class="map"></div>
+  <div id="tips">
+    这里的风景很好看~
+  </div>
+  <script type="text/javascript">
+    // 初始化矢量图层
+    var layer = new ol.layer.Vector({
+      source: new ol.source.Vector(),
+    });
+
+    // 初始化地图
+    var map = new ol.Map({
+      target: 'map',
+      layers: [
+        new ol.layer.Tile({
+          source: new ol.source.OSM()
+        }),
+        layer
+      ],
+      view: new ol.View({
+        center: [117.41, 39.54],
+        projection: 'EPSG:4326',
+        zoom: 9
+      })
+    });
+
+    // 创建一个overlay, 用于点击图标后提示
+    var overlay = new ol.Overlay({
+      element: document.getElementById('tips'),
+      autoPan: true,
+      autoPanAnimation: {
+        duration: 250
+      }
+    })
+
+    // 定义默认样式和选中样式
+    const defaultStyle = new ol.style.Style({
+      image: new ol.style.RegularShape({
+        points: 3,
+        radius: 20,
+        stroke: new ol.style.Stroke({
+          color: 'red',
+          width: 2
+        }),
+        fill: new ol.style.Fill({
+          color: 'yellow'
+        })
+      })
+    });
+
+    const selectedStyle = new ol.style.Style({
+      image: new ol.style.RegularShape({
+        points: 3,
+        radius: 20,
+        stroke: new ol.style.Stroke({
+          color: 'red',
+          width: 2
+        }),
+        fill: new ol.style.Fill({
+          color: 'pink'
+        })
+      })
+    });
+
+    // 定义样式函数
+    function styleFunction(feature) {
+      return feature.get('selected') ? selectedStyle : defaultStyle;
+    }
+
+    // 添加一个三角形特征
+    var shape = new ol.Feature({
+      geometry: new ol.geom.Point([118, 40]),
+      selected: false  // 添加属性用于控制样式
+    });
+
+    // 设置样式函数
+    shape.setStyle(styleFunction);
+
+    // 添加特征到图层
+    layer.getSource().addFeature(shape);
+
+    // 添加点击事件监听器
+    map.on('click', function (evt) {
+      // 重置所有特征的选中状态
+      layer.getSource().getFeatures().forEach(function (feature) {
+        feature.set('selected', false);
+        map.removeOverlay(overlay);
+      });
+
+      // 处理点击事件，更新特定特征的选中状态
+      map.forEachFeatureAtPixel(evt.pixel, function (feature) {
+        if (feature) {
+          feature.set('selected', true);
+          overlay.setPosition(evt.coordinate);
+          map.addOverlay(overlay);
+        }
+      }, {
+        hitTolerance: 5  // 设置点击容差，可以调整这个值
+      });
+
+      // 重新渲染图层以应用样式更改
+      layer.changed();
+    });
+
+  </script>
+</body>
+
+</html>
