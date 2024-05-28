@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.15.1/css/ol.css"
+    type="text/css">
+  <style>
+    .map {
+      height: 100vh;
+      width: 100%;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.15.1/build/ol.js"></script>
+  <title>OpenLayers example</title>
+</head>
+
+<body>
+  <h2>My Map</h2>
+  <div id="map" class="map"></div>
+  <!-- <script type="text/javascript">
+
+    // 在原点处创建一个feature
+    var feature1 = new ol.Feature({
+      geometry: new ol.geom.Point([0, 0])
+    });
+
+    // 并设置为半径为100像素的圆，用红色填充
+    feature1.setStyle(new ol.style.Style({
+      image: new ol.style.Circle({
+        radius: 100,
+        fill: new ol.style.Fill({
+          color: 'red'
+        })
+      })
+    }));
+
+    // 在坐标[5000000, 5000000]处创建另一个feature
+    var feature2 = new ol.Feature({
+      geometry: new ol.geom.Point([5000000, 5000000])
+    });
+
+    // 并设置为半径为100像素的圆，用黄色填充
+    feature2.setStyle(new ol.style.Style({
+      image: new ol.style.Circle({
+        radius: 100,
+        fill: new ol.style.Fill({
+          color: 'yellow'
+        })
+      })
+    }));
+
+    // 创建地图
+    var map = new ol.Map({
+      // 设置地图图层
+      layers: [
+        // 创建一个使用Open Street Map地图源的瓦片图层
+        new ol.layer.Tile({ source: new ol.source.OSM() }),
+        // 把之前创建的feature1和feature2放在另一个层里
+        new ol.layer.Vector({
+          source: new ol.source.Vector({
+            features: [feature1, feature2]
+          })
+        })
+      ],
+      // 设置显示地图的视图
+      view: new ol.View({
+        center: [0, 0],    // 定义地图显示中心于经度0度，纬度0度处
+        zoom: 2            // 并且定义地图显示层级为2
+      }),
+      // 让id为map的div作为地图的容器
+      target: 'map'
+    });
+
+    map.on('pointermove', function (event) {
+      map.forEachFeatureAtPixel(event.pixel, function (feature) {
+        // 注册自定义事件
+        console.log('event', event);
+        feature.dispatchEvent({ type: 'mouseover', event: event });
+      });
+    });
+
+    feature1.on('mouseover', function (e) {
+      console.log('e --', e);
+      feature1.setStyle(new ol.style.Style({
+        image: new ol.style.Circle({
+          radius: 100,
+          fill: new ol.style.Fill({
+            color: 'pink'
+          })
+        })
+      }));
+    })
+  </script> -->
+  <script type="text/javascript">
+    // 在原点处创建一个feature
+    var feature1 = new ol.Feature({
+      geometry: new ol.geom.Point([0, 0])
+    });
+
+    // 并设置为半径为100像素的圆，用红色填充
+    feature1.setStyle(new ol.style.Style({
+      image: new ol.style.Circle({
+        radius: 100,
+        fill: new ol.style.Fill({
+          color: 'red'
+        })
+      })
+    }));
+
+    // 在坐标[5000000, 5000000]处创建另一个feature
+    var feature2 = new ol.Feature({
+      geometry: new ol.geom.Point([5000000, 5000000])
+    });
+
+    // 并设置为半径为100像素的圆，用黄色填充
+    feature2.setStyle(new ol.style.Style({
+      image: new ol.style.Circle({
+        radius: 100,
+        fill: new ol.style.Fill({
+          color: 'yellow'
+        })
+      })
+    }));
+
+    // 创建地图
+    var map = new ol.Map({
+      // 设置地图图层
+      layers: [
+        // 创建一个使用Open Street Map地图源的瓦片图层
+        new ol.layer.Tile({ source: new ol.source.OSM() }),
+        // 把之前创建的feature1和feature2放在另一个层里
+        new ol.layer.Vector({
+          source: new ol.source.Vector({
+            features: [feature1, feature2]
+          })
+        })
+      ],
+      // 设置显示地图的视图
+      view: new ol.View({
+        center: [0, 0],    // 定义地图显示中心于经度0度，纬度0度处
+        zoom: 2            // 并且定义地图显示层级为2
+      }),
+      // 让id为map的div作为地图的容器
+      target: 'map'
+    });
+
+    var isPointerOverFeature1 = false;
+
+    map.on('pointermove', function (event) {
+      var featureFound = false;
+
+      map.forEachFeatureAtPixel(event.pixel, function (feature) {
+        if (feature === feature1) {
+          featureFound = true;
+          if (!isPointerOverFeature1) {
+            isPointerOverFeature1 = true;
+            feature1.dispatchEvent({ type: 'mouseover', event: event });
+          }
+        }
+      });
+
+      if (!featureFound && isPointerOverFeature1) {
+        isPointerOverFeature1 = false;
+        feature1.dispatchEvent({ type: 'mouseout', event: event });
+      }
+    });
+
+    feature1.on('mouseover', function (e) {
+      feature1.setStyle(new ol.style.Style({
+        image: new ol.style.Circle({
+          radius: 100,
+          fill: new ol.style.Fill({
+            color: 'pink'
+          })
+        })
+      }));
+    });
+
+    feature1.on('mouseout', function (e) {
+      feature1.setStyle(new ol.style.Style({
+        image: new ol.style.Circle({
+          radius: 100,
+          fill: new ol.style.Fill({
+            color: 'red'
+          })
+        })
+      }));
+    });
+  </script>
+
+</body>
+
+</html>
