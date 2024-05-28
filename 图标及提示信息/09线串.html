@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.15.1/css/ol.css"
+    type="text/css">
+  <style>
+    .map {
+      height: 100vh;
+      width: 100%;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.15.1/build/ol.js"></script>
+  <title>OpenLayers example</title>
+</head>
+
+<body>
+  <h2>My Map</h2>
+  <div id="map" class="map"></div>
+  <script>
+    // 引入 OpenLayers 库
+    // 假设你已经通过 <script> 标签或者模块化的方式引入了 OpenLayers
+
+    // 创建一个地图容器
+    var map = new ol.Map({
+      // 地图的视图设置
+      view: new ol.View({
+        center: ol.proj.fromLonLat([37.41, 8.82]), // 地图中心点坐标
+        zoom: 4 // 缩放级别
+      }),
+      // 地图的图层
+      layers: [
+        new ol.layer.Tile({
+          source: new ol.source.OSM() // 使用 OpenStreetMap 作为地图源
+        })
+      ],
+      // 地图的容器，可以是任何 DOM 元素的 ID
+      target: 'map'
+    });
+
+    // 创建 LineString 的坐标点数组
+    var coordinates = [
+      ol.proj.fromLonLat([37.41, 8.82]), // 起点坐标
+      ol.proj.fromLonLat([37.6, 8.82]),   // 中间点坐标
+      ol.proj.fromLonLat([37.6, 9.0])     // 终点坐标
+    ];
+
+    // 创建一个 LineString 对象
+    var lineString = new ol.geom.LineString(coordinates);
+
+    // 创建一个向量源，用于存储 LineString
+    var vectorSource = new ol.source.Vector({
+      features: [
+        new ol.Feature({
+          geometry: lineString
+        })
+      ]
+    });
+
+    // 创建一个向量图层，并添加到地图中
+    var vectorLayer = new ol.layer.Vector({
+      source: vectorSource
+    });
+
+    // 将向量图层添加到地图的图层数组中
+    map.addLayer(vectorLayer);
+  </script>
+
+
+</body>
+
+</html>

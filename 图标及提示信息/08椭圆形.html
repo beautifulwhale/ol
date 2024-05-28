@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.15.1/css/ol.css"
+    type="text/css">
+  <style>
+    .map {
+      height: 100vh;
+      width: 100%;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.15.1/build/ol.js"></script>
+  <title>OpenLayers example</title>
+</head>
+
+<body>
+  <h2>My Map</h2>
+  <div id="map" class="map"></div>
+  <script>
+    // 创建一个地图实例，并设置中心和缩放级别
+    var map = new ol.Map({
+      target: 'map',
+      layers: [
+        new ol.layer.Tile({
+          source: new ol.source.OSM()
+        })
+      ],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([0, 0]), // 设置地图的中心
+        zoom: 4 // 设置初始缩放级别
+      })
+    });
+
+    // 椭圆的中心点和半径（以经纬度表示）
+    var center = [0, 0]; // 中心点经纬度
+    var radiusX = 10; // 水平半径（以经纬度为单位）
+    var radiusY = 5; // 垂直半径（以经纬度为单位）
+
+    // 生成椭圆的坐标点
+    function generateEllipseCoordinates(center, radiusX, radiusY, numPoints) {
+      var coordinates = [];
+      for (var i = 0; i < numPoints; i++) {
+        var angle = 2 * Math.PI * i / numPoints;
+        var x = center[0] + radiusX * Math.cos(angle);
+        var y = center[1] + radiusY * Math.sin(angle);
+        coordinates.push([x, y]);
+      }
+      coordinates.push(coordinates[0]); // 闭合多边形
+      return coordinates;
+    }
+
+    var numPoints = 100; // 定义椭圆上的点数
+    var ellipseCoordinates = generateEllipseCoordinates(center, radiusX, radiusY, numPoints);
+
+    // 将坐标转换为地图投影坐标
+    ellipseCoordinates = ellipseCoordinates.map(coord => ol.proj.fromLonLat(coord));
+
+    // 创建一个Polygon对象
+    var ellipsePolygon = new ol.geom.Polygon([ellipseCoordinates]);
+
+    // 创建一个矢量要素，并设置几何图形为Polygon
+    var feature = new ol.Feature(ellipsePolygon);
+
+    // 创建一个矢量源并添加要素
+    var vectorSource = new ol.source.Vector({
+      features: [feature]
+    });
+
+    // 创建一个矢量图层并设置源
+    var vectorLayer = new ol.layer.Vector({
+      source: vectorSource
+    });
+
+    // 将矢量图层添加到地图
+    map.addLayer(vectorLayer);
+  </script>
+
+</body>
+
+</html>

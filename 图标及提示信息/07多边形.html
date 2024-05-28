@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.15.1/css/ol.css"
+    type="text/css">
+  <style>
+    .map {
+      height: 100vh;
+      width: 100%;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.15.1/build/ol.js"></script>
+  <title>OpenLayers example</title>
+</head>
+
+<body>
+  <h2>My Map</h2>
+  <div id="map" class="map"></div>
+  <script>
+    // 创建一个地图实例，并设置中心和缩放级别
+    var map = new ol.Map({
+      target: 'map',
+      layers: [
+        new ol.layer.Tile({
+          source: new ol.source.OSM()
+        })
+      ],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([0, 0]), // 设置地图的中心
+        zoom: 2 // 设置初始缩放级别
+      })
+    });
+
+    // 定义多边形的坐标（在这里使用经纬度）
+    var coordinates = [
+      [
+        ol.proj.fromLonLat([-5, 40]),  // 第一个点
+        ol.proj.fromLonLat([5, 40]),   // 第二个点
+        ol.proj.fromLonLat([5, 50]),   // 第三个点
+        ol.proj.fromLonLat([-5, 50]),  // 第四个点
+        ol.proj.fromLonLat([-5, 40])   // 第五个点（与第一个点相同，闭合多边形）
+      ]
+    ];
+
+    // 创建一个多边形对象
+    var polygon = new ol.geom.Polygon(coordinates);
+
+    // 创建一个要素，并设置几何图形为我们定义的多边形
+    var feature = new ol.Feature({
+      geometry: polygon
+    });
+
+    // 创建一个矢量源并添加要素
+    var vectorSource = new ol.source.Vector({
+      features: [feature]
+    });
+
+    // 创建一个矢量图层并添加到地图中
+    var vectorLayer = new ol.layer.Vector({
+      source: vectorSource
+    });
+    map.addLayer(vectorLayer);
+  </script>
+
+</body>
+
+</html>
