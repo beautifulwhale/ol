@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.15.1/css/ol.css"
+    type="text/css">
+  <style>
+    .map {
+      height: 90vh;
+      width: 100%;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.15.1/build/ol.js"></script>
+  <title>OpenLayers example</title>
+</head>
+
+<body>
+  <h2>My Map</h2>
+  <div id="map" class="map"></div>
+  <script type="text/javascript">
+    var feature1 = new ol.Feature({
+      geometry: new ol.geom.Point(ol.proj.fromLonLat([117.41, 39.54]))
+    })
+
+    var layer1 = new ol.layer.Vector({
+      source: new ol.source.Vector({
+        features: [feature1]
+      }),
+      style: new ol.style.Style({
+        image: new ol.style.Circle({
+          radius: 50,
+          fill: new ol.style.Fill({
+            color: 'red'
+          })
+        })
+      })
+    })
+
+
+    var feature2 = new ol.Feature({
+      geometry: new ol.geom.Point(ol.proj.fromLonLat([118.41, 39.54]))
+    })
+
+    var layer2 = new ol.layer.Vector({
+      source: new ol.source.Vector({
+        features: [feature2]
+      }),
+      style: new ol.style.Style({
+        image: new ol.style.Circle({
+          radius: 50,
+          fill: new ol.style.Fill({
+            color: 'green'
+          })
+        })
+      })
+    })
+
+    var map = new ol.Map({
+      target: 'map',
+      layers: [
+        new ol.layer.Tile({
+          source: new ol.source.OSM()
+        }),
+        layer1,
+        layer2
+      ],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([117.41, 39.54]),
+        zoom: 9
+      })
+    });
+
+    const selectInteraction = new ol.interaction.Select({
+      // 添加交互方式
+      condition: ol.events.condition.pointerMove,
+      // 过滤方法过滤不需要交互的feature
+      filter: function (f) {
+        return f === feature1;
+      }
+    });
+
+    map.addInteraction(selectInteraction);
+
+    selectInteraction.on('select', function (event) {
+      if (!event.selected.length) return;
+      event.selected[0].setStyle(new ol.style.Style({
+        image: new ol.style.Circle({
+          radius: 50,
+          fill: new ol.style.Fill({
+            color: 'blue'
+          })
+        })
+      }));
+    });
+  </script>
+</body>
+
+</html>
