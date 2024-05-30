@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>OpenLayers Draw and Modify Example</title>
+  <link rel="stylesheet" href="https://openlayers.org/en/v6.9.0/css/ol.css" type="text/css">
+  <style>
+    #map {
+      width: 100%;
+      height: 100vh;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/build/ol.js"></script>
+</head>
+
+<body>
+  <div id="map" class="map"></div>
+  <script type="text/javascript">
+    // 初始化地图和要素图层
+    var vectorSource = new ol.source.Vector();
+    var vectorLayer = new ol.layer.Vector({
+      source: vectorSource
+    });
+
+    var map = new ol.Map({
+      target: 'map',
+      layers: [
+        new ol.layer.Tile({
+          source: new ol.source.OSM()
+        }),
+        vectorLayer
+      ],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([0, 0]),
+        zoom: 2
+      })
+    });
+
+    // 添加 Draw 交互
+    var draw = new ol.interaction.Draw({
+      source: vectorSource,
+      type: 'Polygon' // 可以是 'Point', 'LineString', 'Polygon', 'Circle', 等
+    });
+    map.addInteraction(draw);
+
+    // 添加 Modify 交互
+    var modify = new ol.interaction.Modify({
+      source: vectorSource
+    });
+    map.addInteraction(modify);
+
+    // 监听绘制事件
+    draw.on('drawend', function (event) {
+      console.log('Drawn feature:', event.feature);
+    });
+
+    // 监听修改事件
+    modify.on('modifyend', function (event) {
+      console.log('Modified features:', event.features.getArray());
+    });
+  </script>
+</body>
+
+</html>

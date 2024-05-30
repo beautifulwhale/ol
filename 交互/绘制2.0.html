@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.15.1/css/ol.css"
+    type="text/css">
+  <style>
+    .map {
+      height: 100vh;
+      width: 100%;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.15.1/build/ol.js"></script>
+  <title>OpenLayers example</title>
+</head>
+
+<body>
+  <div id="map" class="map"></div>
+  <script>
+    // 创建地图基础层
+    const rasterLayer = new ol.layer.Tile({
+      source: new ol.source.OSM()
+    });
+
+    // 创建一个向量源和图层用于存储椭圆
+    const vectorSource = new ol.source.Vector({ wrapX: false });
+    const vectorLayer = new ol.layer.Vector({
+      source: vectorSource
+    });
+
+    // 创建地图对象
+    const map = new ol.Map({
+      target: 'map',
+      layers: [rasterLayer, vectorLayer],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([0, 0]),
+        zoom: 2
+      })
+    });
+
+    // 自定义绘制椭圆的函数
+    function createEllipse(center, radiusX, radiusY, rotation) {
+      const points = 64;
+      const flatCoordinates = [];
+      for (let i = 0; i < points; ++i) {
+        const angle = (i * 2 * Math.PI) / points;
+        const cosAngle = Math.cos(angle);
+        const sinAngle = Math.sin(angle);
+        const x = center[0] + (radiusX * cosAngle * Math.cos(rotation) - radiusY * sinAngle * Math.sin(rotation));
+        const y = center[1] + (radiusX * cosAngle * Math.sin(rotation) + radiusY * sinAngle * Math.cos(rotation));
+        flatCoordinates.push(x, y);
+      }
+      flatCoordinates.push(flatCoordinates[0], flatCoordinates[1]);
+      return new ol.geom.Polygon([flatCoordinates]);
+    }
+
+    // 创建一个绘图交互用于绘制椭圆
+    const draw = new ol.interaction.Draw({
+      source: vectorSource,
+      type: 'Circle',
+      geometryFunction: function (coordinates, geometry) {
+        if (!geometry) {
+          geometry = new ol.geom.Polygon(null);
+        }
+        const center = coordinates[0];
+        const end = coordinates[1];
+        const radiusX = Math.abs(end[0] - center[0]);
+        const radiusY = Math.abs(end[1] - center[1]);
+        const rotation = 0; // 旋转角度
+        const ellipse = createEllipse(center, radiusX, radiusY, rotation);
+        geometry.setCoordinates(ellipse.getCoordinates());
+        return geometry;
+      }
+    });
+
+    // 添加绘图交互到地图中
+    map.addInteraction(draw);
+
+    // 监听绘制结束事件
+    draw.on('drawend', function (event) {
+      const feature = event.feature;
+      // 对椭圆进行处理，这里我们可以自定义椭圆的外观等
+      feature.setStyle(new ol.style.Style({
+        fill: new ol.style.Fill({
+          color: 'rgba(255, 255, 255, 0.2)'
+        }),
+        stroke: new ol.style.Stroke({
+          color: '#ffcc33',
+          width: 2
+        })
+      }));
+    });
+
+    // 添加按钮以启用绘制椭圆的功能
+    const button = document.createElement('button');
+    button.textContent = 'Draw Ellipse';
+    button.onclick = () => {
+      draw.setActive(true);
+    };
+    document.body.appendChild(button);
+
+    // 禁用绘图交互，除非按钮被点击
+    draw.setActive(false);
+  </script>
+</body>
+
+</html>
