@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>OpenLayers View Animation Example</title>
+  <link rel="stylesheet" href="https://openlayers.org/en/v6.9.0/css/ol.css" type="text/css">
+  <style>
+    #map {
+      width: 100%;
+      height: 100vh;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/build/ol.js"></script>
+</head>
+
+<body>
+  <div id="map" class="map"></div>
+  <script type="text/javascript">
+    // 初始化地图和图层
+    const map = new ol.Map({
+      target: 'map',
+      layers: [
+        new ol.layer.Tile({
+          source: new ol.source.OSM()
+        })
+      ],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([0, 0]),
+        zoom: 2
+      })
+    });
+
+    // 获取视图
+    const view = map.getView();
+
+    // 添加一个按钮来触发动画
+    const button = document.createElement('button');
+    button.innerHTML = 'Animate';
+    button.style.position = 'absolute';
+    button.style.top = '10px';
+    button.style.right = '10px';
+    document.body.appendChild(button);
+
+    // button.addEventListener('click', () => {
+    //   // 组合动画：先缩放再移动
+    //   view.animate(
+    //     {
+    //       zoom: 4,
+    //       duration: 1000 // 第一步动画持续时间为1秒
+    //     },
+    //     {
+    //       center: ol.proj.fromLonLat([37.7749, 0]),
+    //       duration: 2000 // 第二步动画持续时间为2秒
+    //     }
+    //   );
+    // });
+    button.addEventListener('click', () => {
+      // 定义一个锚点
+      const anchor = ol.proj.fromLonLat([0, 0]); // 旧金山
+
+      // 动画组合
+      view.animate(
+        {
+          zoom: 4,
+          anchor: anchor, // 设置锚点
+          duration: 2000 // 动画持续时间为2秒
+        },
+        {
+          zoom: 9,
+          center: ol.proj.fromLonLat([140, 40]), // 移动到新的中心点 (纽约)
+          duration: 2000 // 动画持续时间为2秒
+        }
+      );
+    });
+  </script>
+</body>
+
+</html>
