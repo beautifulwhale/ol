@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>OpenLayers Custom Control Example</title>
+  <link rel="stylesheet" href="https://openlayers.org/en/v6.9.0/css/ol.css" type="text/css">
+  <style>
+    #map {
+      width: 100%;
+      height: 100vh;
+    }
+
+    .custom-control {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background: rgba(255, 255, 255, 0.7);
+      padding: 5px;
+      border-radius: 3px;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/build/ol.js"></script>
+</head>
+
+<body>
+  <div id="map" class="map"></div>
+  <script type="text/javascript">
+    // 自定义控件类
+    class CenterCoordinateControl extends ol.control.Control {
+      constructor(opt_options) {
+        const options = opt_options || {};
+
+        // 创建控件的HTML元素
+        const element = document.createElement('div');
+        element.className = 'custom-control ol-unselectable ol-control';
+        element.innerHTML = 'Center: ';
+
+        // 调用父类构造函数
+        super({
+          element: element,
+          target: options.target
+        });
+
+        this.coordinateElement = document.createElement('span');
+        element.appendChild(this.coordinateElement);
+
+        // 绑定地图视图变化事件
+        const map = options.map;
+        if (map) {
+          map.getView().on('change:center', () => {
+            this.updateCenter(map.getView().getCenter());
+          });
+
+          // 初始化时更新中心坐标
+          this.updateCenter(map.getView().getCenter());
+        }
+      }
+
+      // 更新中心坐标显示
+      updateCenter(coordinate) {
+        const coord = ol.proj.toLonLat(coordinate);
+        this.coordinateElement.innerHTML = `${coord[0].toFixed(4)}, ${coord[1].toFixed(4)}`;
+      }
+    }
+
+    // 初始化地图和图层
+    const map = new ol.Map({
+      target: 'map',
+      layers: [
+        new ol.layer.Tile({
+          source: new ol.source.OSM()
+        })
+      ],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([0, 0]),
+        zoom: 2
+      })
+    });
+
+    // 创建并添加自定义控件到地图
+    const centerCoordinateControl = new CenterCoordinateControl({ map: map });
+    map.addControl(centerCoordinateControl);
+  </script>
+</body>
+
+</html>

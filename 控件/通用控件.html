@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>OpenLayers Controls Example</title>
+  <link rel="stylesheet" href="https://openlayers.org/en/v6.9.0/css/ol.css" type="text/css">
+  <style>
+    #map {
+      width: 100%;
+      height: 100vh;
+    }
+
+    .custom-mouse-position {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(255, 255, 255, 0.7);
+      padding: 5px;
+      border-radius: 3px;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/build/ol.js"></script>
+</head>
+
+<body>
+  <div id="map" class="map"></div>
+  <div id="mouse-position" class="custom-mouse-position"></div>
+  <script type="text/javascript">
+    // 初始化地图和图层
+    var map = new ol.Map({
+      target: 'map',
+      layers: [
+        new ol.layer.Tile({
+          source: new ol.source.OSM()
+        })
+      ],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([0, 0]),
+        zoom: 2
+      })
+    });
+
+    // 添加控件
+    map.addControl(new ol.control.Zoom());
+    map.addControl(new ol.control.ZoomSlider());
+    map.addControl(new ol.control.ZoomToExtent({
+      extent: [
+        813079.7791264898, 5929220.284081122,
+        848966.9639063801, 5936863.986909639
+      ]
+    }));
+    map.addControl(new ol.control.FullScreen());
+    map.addControl(new ol.control.OverviewMap({
+      layers: [
+        new ol.layer.Tile({
+          source: new ol.source.OSM()
+        })
+      ]
+    }));
+    map.addControl(new ol.control.ScaleLine());
+    map.addControl(new ol.control.MousePosition({
+      coordinateFormat: ol.coordinate.createStringXY(4),
+      projection: 'EPSG:4326',
+      className: 'custom-mouse-position',
+      target: document.getElementById('mouse-position'),
+      undefinedHTML: '&nbsp;'
+    }));
+    map.addControl(new ol.control.Attribution({
+      collapsible: false
+    }));
+    map.addControl(new ol.control.Rotate({
+      autoHide: false
+    }));
+  </script>
+</body>
+
+</html>
